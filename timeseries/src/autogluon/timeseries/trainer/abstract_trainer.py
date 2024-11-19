@@ -263,6 +263,7 @@ class AbstractTimeSeriesTrainer(SimpleAbstractTrainer):
         verbosity: int = 2,
         val_splitter: Optional[AbstractWindowSplitter] = None,
         strict_val: bool = False,
+        _refit_full: bool = False,
         refit_every_n_windows: Optional[int] = 1,
         cache_predictions: bool = True,
         **kwargs,
@@ -292,6 +293,7 @@ class AbstractTimeSeriesTrainer(SimpleAbstractTrainer):
         assert isinstance(val_splitter, AbstractWindowSplitter), "val_splitter must be of type AbstractWindowSplitter"
         self.val_splitter = val_splitter
         self.strict_val = strict_val
+        self._refit_full = _refit_full
         self.refit_every_n_windows = refit_every_n_windows
         self.cache_predictions = cache_predictions
         self.hpo_results = {}
@@ -591,6 +593,7 @@ class AbstractTimeSeriesTrainer(SimpleAbstractTrainer):
                 freq=train_data.freq,
                 multi_window=self.val_splitter.num_val_windows > 0,
                 strict_val=self.strict_val,
+                _refit_full=self._refit_full,
                 excluded_model_types=excluded_model_types,
             )
 

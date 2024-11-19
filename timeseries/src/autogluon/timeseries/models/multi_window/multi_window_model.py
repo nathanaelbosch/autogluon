@@ -40,6 +40,7 @@ class MultiWindowBacktestingModel(AbstractTimeSeriesModel):
         model_base: Union[AbstractTimeSeriesModel, Type[AbstractTimeSeriesModel]],
         model_base_kwargs: Optional[Dict[str, any]] = None,
         strict_val = False,
+        _refit_full = False,
         **kwargs,
     ):
         if inspect.isclass(model_base) and issubclass(model_base, AbstractTimeSeriesModel):
@@ -58,6 +59,7 @@ class MultiWindowBacktestingModel(AbstractTimeSeriesModel):
         self.model_base_type = type(self.model_base)
         self.info_per_val_window = []
         self.strict_val = strict_val
+        self._refit_full = _refit_full
 
         self.most_recent_model: AbstractTimeSeriesModel = None
         self.most_recent_model_folder: Optional[str] = None
@@ -173,12 +175,13 @@ class MultiWindowBacktestingModel(AbstractTimeSeriesModel):
             )
 
         # Refit the model on all windows
-        model.fit(
-            train_data=train_fold,
-            val_data=val_fold,
-            time_limit=time_left_for_window,
-            **kwargs,
-        )
+        if self._refit_full:
+            model.fit(
+                train_data=train_fold,
+                val_data=val_fold,
+                time_limit=time_left_for_window,
+                **kwargs,
+            )
 
         # Only the model trained on most recent data is saved & used for prediction
         self.most_recent_model = model

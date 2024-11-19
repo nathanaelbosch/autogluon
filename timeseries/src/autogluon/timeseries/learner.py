@@ -80,6 +80,7 @@ class TimeSeriesLearner(AbstractLearner):
         refit_every_n_windows: Optional[int] = 1,
         random_seed: Optional[int] = None,
         strict_val: bool = False,
+        _refit_full: bool = False,
         **kwargs,
     ) -> None:
         self._time_limit = time_limit
@@ -108,6 +109,7 @@ class TimeSeriesLearner(AbstractLearner):
                 refit_every_n_windows=refit_every_n_windows,
                 cache_predictions=self.cache_predictions,
                 strict_val=strict_val,
+                _refit_full=_refit_full,
             )
         )
         self.trainer = self.trainer_type(**trainer_init_kwargs)

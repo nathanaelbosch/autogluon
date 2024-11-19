@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class AutoTimeSeriesTrainer(AbstractTimeSeriesTrainer):
-    def construct_model_templates(self, hyperparameters, multi_window: bool = False, strict_val: bool = False, **kwargs):
+    def construct_model_templates(self, hyperparameters, multi_window: bool = False, strict_val: bool = False, _refit_full: bool = False, **kwargs):
         path = kwargs.pop("path", self.path)
         eval_metric = kwargs.pop("eval_metric", self.eval_metric)
         eval_metric_seasonal_period = kwargs.pop("eval_metric", self.eval_metric_seasonal_period)
@@ -30,6 +30,7 @@ class AutoTimeSeriesTrainer(AbstractTimeSeriesTrainer):
             # if skip_model_selection = True, we skip backtesting
             multi_window=multi_window and not self.skip_model_selection,
             strict_val=strict_val,
+            _refit_full=_refit_full,
         )
 
     def fit(
