@@ -175,6 +175,7 @@ def get_preset_models(
     all_assigned_names: List[str],
     excluded_model_types: List[str],
     multi_window: bool = False,
+    strict_val: bool = False,
     **kwargs,
 ):
     """
@@ -264,7 +265,7 @@ def get_preset_models(
                 model = model_type(name=f"{model_name_base}_{increment}", **model_type_kwargs)
 
             if multi_window:
-                model = MultiWindowBacktestingModel(model_base=model, name=model.name, **model_type_kwargs)
+                model = MultiWindowBacktestingModel(model_base=model, name=model.name, strict_val=strict_val, **model_type_kwargs)
 
             all_assigned_names.add(model.name)
             models.append(model)

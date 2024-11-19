@@ -427,6 +427,7 @@ class TimeSeriesPredictor(TimeSeriesPredictorDeprecatedMixin):
         skip_model_selection: bool = False,
         random_seed: Optional[int] = 123,
         verbosity: Optional[int] = None,
+        strict_val: bool = False,
     ) -> "TimeSeriesPredictor":
         """Fit probabilistic forecasting models to the given time series dataset.
 
@@ -697,6 +698,7 @@ class TimeSeriesPredictor(TimeSeriesPredictorDeprecatedMixin):
             enable_ensemble=enable_ensemble,
             random_seed=random_seed,
             verbosity=verbosity,
+            strict_val=strict_val,
         )
         if presets is not None:
             logger.info(f"Setting presets to: {presets}")
@@ -757,6 +759,7 @@ class TimeSeriesPredictor(TimeSeriesPredictorDeprecatedMixin):
             skip_model_selection=skip_model_selection,
             enable_ensemble=enable_ensemble,
             random_seed=random_seed,
+            strict_val=strict_val,
         )
         if refit_full:
             if tuning_data is None:

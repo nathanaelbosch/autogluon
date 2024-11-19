@@ -39,6 +39,7 @@ class MultiWindowBacktestingModel(AbstractTimeSeriesModel):
         self,
         model_base: Union[AbstractTimeSeriesModel, Type[AbstractTimeSeriesModel]],
         model_base_kwargs: Optional[Dict[str, any]] = None,
+        strict_val = False,
         **kwargs,
     ):
         if inspect.isclass(model_base) and issubclass(model_base, AbstractTimeSeriesModel):
@@ -56,6 +57,7 @@ class MultiWindowBacktestingModel(AbstractTimeSeriesModel):
             raise AssertionError(f"model_base must be an instance of AbstractTimeSeriesModel (got {type(model_base)})")
         self.model_base_type = type(self.model_base)
         self.info_per_val_window = []
+        self.strict_val = strict_val
 
         self.most_recent_model: AbstractTimeSeriesModel = None
         self.most_recent_model_folder: Optional[str] = None
@@ -124,15 +126,19 @@ class MultiWindowBacktestingModel(AbstractTimeSeriesModel):
                 else:
                     num_refits_remaining = math.ceil(
                         (val_splitter.num_val_windows - window_index) / refit_every_n_windows
-                    )
+                    ) + 1
                     time_left_for_window = time_left / num_refits_remaining
 
             if refit_this_window:
                 model = self.get_child_model(window_index)
+                _train, _val = train_fold, val_fold
+                if self.strict_val:
+                    _val_splitter = ExpandingWindowSplitter(prediction_length=self.prediction_length, num_val_windows=1)
+                    _train, _val = list(_val_splitter.split(train_fold))[0]
                 model_fit_start_time = time.time()
                 model.fit(
-                    train_data=train_fold,
-                    val_data=val_fold,
+                    train_data=_train,
+                    val_data=_val,
                     time_limit=time_left_for_window,
                     **kwargs,
                 )
@@ -165,6 +171,14 @@ class MultiWindowBacktestingModel(AbstractTimeSeriesModel):
                     "predict_time": model.predict_time,
                 }
             )
+
+        # Refit the model on all windows
+        model.fit(
+            train_data=train_fold,
+            val_data=val_fold,
+            time_limit=time_left_for_window,
+            **kwargs,
+        )
 
         # Only the model trained on most recent data is saved & used for prediction
         self.most_recent_model = model
