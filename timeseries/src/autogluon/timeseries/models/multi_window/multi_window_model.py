@@ -124,14 +124,14 @@ class MultiWindowBacktestingModel(AbstractTimeSeriesModel):
                 else:
                     num_refits_remaining = math.ceil(
                         (val_splitter.num_val_windows - window_index) / refit_every_n_windows
-                    )
+                    ) + 1
                     time_left_for_window = time_left / num_refits_remaining
 
             if refit_this_window:
                 model = self.get_child_model(window_index)
                 model_fit_start_time = time.time()
                 model.fit(
-                    train_data=train_fold,
+                    train_data=train_fold, 
                     val_data=val_fold,
                     time_limit=time_left_for_window,
                     **kwargs,
