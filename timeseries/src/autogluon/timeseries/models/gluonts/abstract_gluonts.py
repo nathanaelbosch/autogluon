@@ -486,6 +486,12 @@ class AbstractGluonTSModel(AbstractTimeSeriesModel):
         )
         self._deferred_init_params_aux(train_data)
 
+        if init_args.get("strict_val", False):
+            print("Being strict about the train val split!")
+            train_data, val_data = train_data.train_test_split(self.prediction_length)
+        else:
+            print("Not being strict about the train val split.")
+
         estimator = self._get_estimator()
         with warning_filter(), disable_root_logger(), gluonts.core.settings.let(gluonts.env.env, use_tqdm=False):
             self.gts_predictor = estimator.train(
@@ -636,4 +642,4 @@ class AbstractGluonTSModel(AbstractTimeSeriesModel):
         return TimeSeriesDataFrame(forecast_df)
 
     def _more_tags(self) -> dict:
-        return {"allow_nan": True, "can_use_val_data": True}
+        return {"allow_nan": True, "can_use_val_data": True, "can_refit_full": True}
